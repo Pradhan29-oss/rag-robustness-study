@@ -1,0 +1,132 @@
+# Dataset License and Attribution
+
+## 1. Primary Dataset
+
+**Dataset:** RGB — Retrieval-Augmented Generation Benchmark
+
+**Official Repository:** https://github.com/chen700564/RGB
+
+**Research Paper:** [Benchmarking Large Language Models in Retrieval-Augmented Generation](https://doi.org/10.1609/AAAI.V38I16.29728)
+
+**Authors:** Jiawei Chen, Hongyu Lin, Xianpei Han, and Le Sun.
+
+**Publication:** AAAI 2024.
+
+## 2. Dataset License
+
+The RGB repository specifies the following license:
+
+**Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0).**
+
+Official license: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+This license generally requires:
+
+- **Attribution:** Credit the original authors and provide the source.
+- **NonCommercial:** Do not use the licensed material for commercial purposes.
+- **ShareAlike:** Distribute adaptations under the same or a compatible license as required by the license terms.
+
+Users must review the original repository and license before downloading, modifying, or redistributing the dataset.
+
+## 3. Dataset Usage in This Research
+
+The RGB benchmark will be used as the primary evaluation source for this research project.
+
+Planned usage:
+
+1. Inspect the original English benchmark structure.
+2. Select a documented evaluation subset.
+3. Preserve original question IDs and reference answers.
+4. Generate controlled irrelevant and contradictory context variants.
+5. Evaluate BM25, dense, and hybrid retrieval configurations.
+6. Report experimental results with appropriate attribution.
+
+Original benchmark data and project-generated experimental data will be maintained separately.
+
+## 4. Dataset Redistribution Policy
+
+This repository will not redistribute the original RGB dataset files.
+
+Users should obtain the dataset directly from the official repository and comply with its license.
+
+The repository may contain:
+
+- Dataset download instructions.
+- Original benchmark attribution.
+- Dataset IDs and references.
+- Original experimental configurations.
+- Original code for dataset processing.
+- Project-generated metadata and evaluation results, subject to applicable third-party rights.
+
+Derived dataset materials will not be published automatically. Their redistribution will be reviewed against the upstream license.
+
+## 5. Synthetic Data and Noise Injection
+
+This research introduces controlled context corruption.
+
+Two noise categories will be evaluated:
+
+### Irrelevant Passages
+
+Passages that do not provide useful evidence for answering the corresponding question.
+
+### Contradictory Passages
+
+Synthetic passages containing claims that conflict with identifiable original evidence.
+
+Each generated passage should maintain:
+
+- Original question ID.
+- Source passage ID.
+- Noise category.
+- Noise severity.
+- Original factual claim, where applicable.
+- Generated passage.
+- Verification status.
+
+Synthetic passages must be clearly identified as generated research artifacts and must not be presented as authentic RGB benchmark documents.
+
+## 6. Attribution
+
+When referencing the RGB benchmark, use the following citation:
+
+Chen, J., Lin, H., Han, X., & Sun, L. (2024). *Benchmarking Large Language Models in Retrieval-Augmented Generation*. Proceedings of the AAAI Conference on Artificial Intelligence.
+
+https://doi.org/10.1609/AAAI.V38I16.29728
+
+Official repository:
+
+https://github.com/chen700564/RGB
+
+## 7. Separation of Project and Dataset Licenses
+
+This project distinguishes between two types of intellectual property:
+
+| Component | Applicable license |
+|---|---|
+| Original project implementation | MIT License |
+| RGB benchmark | CC BY-NC-SA 4.0 |
+| Third-party papers | Their respective copyright and usage terms |
+| Third-party datasets | Their respective licenses |
+| Project-generated experimental outputs | Subject to applicable source-data rights and third-party terms |
+
+The MIT License applies only to original implementation code created for this project.
+
+It does not replace, override, or grant additional permissions for the RGB benchmark or other third-party materials.
+
+## 8. Research Integrity
+
+- Original benchmark labels will not be silently modified.
+- All dataset transformations will be documented.
+- Generated noise will be distinguishable from original benchmark content.
+- Dataset sources and versions will be recorded.
+- Experimental results will be reported honestly.
+- No dataset licensing permission will be assumed beyond the published terms.
+
+---
+
+**Last Updated:** November 2026
+
+**Project:** RAG Robustness Study
+
+**Repository:** https://github.com/Pradhan29-oss/rag-robustness-study

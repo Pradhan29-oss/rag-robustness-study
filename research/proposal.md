@@ -7,207 +7,385 @@ Evaluating the Robustness of Retrieval-Augmented Generation Systems Under Contro
 
 ## 1. Abstract
 
-Retrieval-Augmented Generation (RAG) improves Large Language Model (LLM) responses by retrieving external information before generating an answer. However, retrieved contexts may contain irrelevant, misleading, or contradictory information that can negatively affect answer reliability.
+Retrieval-Augmented Generation (RAG) combines information retrieval with Large Language Models (LLMs) to produce answers grounded in external documents.
 
-This research investigates how different retrieval strategies perform under controlled context noise. We compare sparse retrieval (BM25), dense retrieval, and hybrid retrieval under clean, irrelevant-distractor, and contradictory-context conditions.
+However, RAG systems may encounter irrelevant, misleading, or contradictory information during retrieval and generation.
 
-The systems will be evaluated using retrieval quality, answer correctness, unsupported claims, response latency, and token consumption.
+This research investigates how sparse, dense, and hybrid retrieval strategies affect retrieval effectiveness, answer correctness, faithfulness, and computational efficiency under controlled noisy-context conditions.
 
-The objective is to identify which retrieval configuration offers the best balance between answer reliability and computational cost under imperfect retrieval conditions.
+The study distinguishes retrieval-side noise, introduced into the searchable document corpus, from context-side noise, introduced after retrieval and before generation.
+
+The experiments will use a documented English subset of the Retrieval-Augmented Generation Benchmark (RGB), alongside controlled corpus construction and synthetic noise transformations where supported by the inspected dataset schema.
+
+The objective is to develop a reproducible experimental framework and identify the reliability-cost trade-offs of different retrieval strategies.
 
 ## 2. Problem Statement
 
-RAG systems commonly assume that retrieved documents provide useful evidence. In practical applications, however, retrieved documents may contain:
+RAG systems depend on the quality of retrieved evidence.
 
-- Irrelevant information.
-- Semantically similar but incorrect information.
+In practical environments, retrieved information may contain:
+
+- Irrelevant documents.
+- Semantically similar but incorrect documents.
 - Contradictory statements.
-- Multiple documents with conflicting answers.
+- Misleading evidence.
+- Conflicting claims from multiple sources.
 
-These conditions can cause LLMs to produce incorrect or unsupported answers.
+These conditions may reduce answer correctness and increase unsupported claims.
 
-The central problem is understanding how retrieval strategies influence the reliability of RAG systems when the supplied context contains controlled levels of irrelevant or contradictory information.
+A further challenge is distinguishing failures caused by retrieval from failures caused by the generator's interpretation of retrieved evidence.
 
-## 3. Research Questions
+This study separates these failure sources through controlled experiments.
 
-**Primary Research Question (RQ1):**
+## 3. Research Gap
 
-How do sparse, dense, and hybrid retrieval strategies affect RAG answer reliability under increasing levels of irrelevant and contradictory context?
+Existing research establishes several important limitations:
 
-**Secondary Research Questions:**
+1. RGB evaluates noise robustness, negative rejection, information integration, and counterfactual robustness.
+2. CRAG evaluates factual question answering across domains, question categories, and dynamic knowledge conditions.
+3. Recent retrieval-robustness research studies whether RAG is better than non-RAG, the effect of retrieved document quantity, and document ordering.
 
-- RQ2: Which retrieval strategy maintains the highest answer accuracy under noisy-context conditions?
-- RQ3: How does contradictory evidence affect unsupported claims and answer correctness?
-- RQ4: What is the relationship between retrieval quality, answer reliability, latency, and token consumption?
+These studies establish that imperfect retrieval and noisy evidence can influence RAG performance.
 
-## 4. Research Objectives
+This project will investigate a focused experimental comparison of BM25, dense retrieval, and hybrid retrieval under separately controlled retrieval-side and context-side corruption.
 
-1. Implement three retrieval strategies: BM25, dense retrieval, and hybrid retrieval.
-2. Develop a controlled evaluation dataset.
-3. Introduce irrelevant and contradictory context at different noise levels.
-4. Evaluate answer reliability under identical generation settings.
-5. Compare retrieval and generation performance.
-6. Measure computational cost and response latency.
-7. Publish reproducible experiments and findings.
+The contribution is not claimed to be a new retrieval algorithm or the first study of RAG robustness.
+
+The proposed contribution is an integrated, reproducible comparison of retrieval effectiveness, answer reliability, and computational cost under a clearly documented experimental design.
+
+## 4. Research Questions
+
+**RQ1 — Retrieval effectiveness**
+
+How do BM25, dense retrieval, and hybrid retrieval differ in retrieval effectiveness and end-to-end answer quality?
+
+**RQ2 — Noise robustness**
+
+How do noise location (retrieval-side versus context-side), noise type (irrelevant versus contradictory), and noise severity affect answer correctness and faithfulness?
+
+**RQ3 — Efficiency**
+
+What trade-offs exist between answer quality, retrieval latency, generation latency, and token consumption across the three retrieval strategies?
 
 ## 5. Research Hypotheses
 
-**H1:** Hybrid retrieval will provide better retrieval quality than either BM25 or dense retrieval alone on the selected evaluation dataset.
+**H1:** Hybrid retrieval will outperform individual retrieval methods in retrieval effectiveness on the selected evaluation corpus.
 
-**H2:** Increasing irrelevant context will reduce answer reliability for at least some retrieval configurations.
+**H2:** Increasing noise severity will reduce answer correctness and increase unsupported claims.
 
-**H3:** Contradictory context will produce a greater reliability challenge than irrelevant context alone.
+**H3:** Hybrid retrieval will exhibit a different quality-cost trade-off from BM25 and dense retrieval.
 
-**H4:** Better retrieval quality will not necessarily guarantee better answer correctness when contradictory evidence is present.
+All hypotheses will be tested experimentally. No hypothesis is treated as a verified result.
 
-These hypotheses will be tested experimentally. They are not assumed results.
+## 6. Experimental Variables
 
-## 6. Proposed Methodology
+### Independent Variables
 
-### 6.1 Experimental Setup
+- Retrieval strategy: BM25, Dense, Hybrid.
+- Noise location: Retrieval-side, Context-side.
+- Noise type: Irrelevant, Contradictory.
+- Noise severity: Clean, Low, Medium, High.
 
-Build a reproducible RAG pipeline consisting of:
+### Dependent Variables
 
-1. Document ingestion
-2. Text preprocessing and chunking
-3. Index construction
-4. Retrieval
-5. Controlled context manipulation
-6. LLM-based answer generation
-7. Evaluation and reporting
+Retrieval:
+- Precision@5
+- Recall@5
+- nDCG@5
 
-### 6.2 Retrieval Strategies
-
-| Strategy | Implementation |
-|---|---|
-| Sparse | BM25 |
-| Dense | Sentence Transformers embeddings |
-| Hybrid | Reciprocal Rank Fusion (RRF) of sparse and dense results |
-
-Dense embedding model: `sentence-transformers/all-MiniLM-L6-v2`
-
-### 6.3 Context Conditions
-
-| Condition | Description |
-|---|---|
-| Clean | Relevant evidence only |
-| Distractor | Relevant evidence mixed with irrelevant passages |
-| Contradictory | Relevant evidence mixed with deliberately conflicting passages |
-
-### 6.4 Noise Levels
-
-Use controlled levels of injected passages:
-
-- Level 0: No injected passages.
-- Level 1: 2 distractor passages.
-- Level 2: 4 distractor passages.
-- Level 3: 8 distractor passages.
-
-For contradictory experiments, replace distractors with passages containing explicitly conflicting claims.
-
-Keep the relevant evidence, generation prompt, model, and decoding settings fixed wherever possible.
-
-Record context length and distinguish the effect of noise type from the effect of context length.
-
-### 6.5 Dataset
-
-Primary evaluation source:
-
-RGB (Retrieval-Augmented Generation Benchmark).
-
-The benchmark covers noise robustness, negative rejection, information integration, and counterfactual robustness.
-
-Use a manageable, documented subset for the initial experiments.
-
-Create controlled distractor and contradiction variants programmatically. Preserve the original questions, gold answers, and relevant evidence.
-
-Optional external validation: CRAG benchmark, subject to dataset access and available time.
-
-### 6.6 Evaluation Metrics
-
-**Retrieval metrics**
-- Recall@K
-- Mean Reciprocal Rank (MRR)
-- nDCG@K
-
-**Generation metrics**
-- Exact Match (EM)
+Generation:
+- Exact Match
 - Token-level F1
 - Answer correctness
-- Unsupported claim rate
-- Evidence-grounded answer rate
+- Unsupported-claim rate
+- Faithfulness
 
-**Efficiency metrics**
-- Average retrieval latency
-- Average generation latency
-- Input and output token consumption
-- Estimated API cost, when applicable
+Efficiency:
+- Retrieval latency
+- Generation latency
+- Input token usage
+- Output token usage
 
-### 6.7 Experimental Controls
+### Controlled Variables
 
-To make the comparison fair:
+- Same evaluation questions.
+- Same document corpus for corresponding comparisons.
+- Same top-K value: 5.
+- Same embedding model.
+- Same chunking configuration.
+- Same generation model.
+- Same generation prompt.
+- Same decoding settings.
+- Same context-token budget.
+- Same evaluation procedure.
+- Recorded hardware and software versions.
 
-- Use the same question set across retrieval strategies.
-- Keep the generation model and prompt fixed.
-- Fix temperature and decoding parameters.
-- Keep the relevant evidence available across conditions.
-- Record random seeds and dataset versions.
-- Repeat stochastic experiments where feasible.
-- Report failures and missing results rather than silently excluding them.
+## 7. Dataset
 
-## 7. Expected Contributions
+### Primary Dataset
 
-1. A reproducible experimental framework for evaluating RAG robustness.
-2. A controlled dataset transformation pipeline for distractor and contradictory contexts.
-3. A comparison of sparse, dense, and hybrid retrieval.
-4. An empirical analysis of reliability versus computational cost.
-5. Open-source code, configurations, and experimental results.
+RGB: Retrieval-Augmented Generation Benchmark.
 
-## 8. Limitations
+Repository:
+https://github.com/chen700564/RGB
 
-- Initial experiments will use a limited dataset subset.
-- Results may depend on the selected LLM and embedding model.
-- API-based generation can introduce variability.
-- Synthetic contradictory passages may not represent all real-world misinformation.
-- Findings from this study should not be generalized to every RAG architecture.
+Research paper:
+https://doi.org/10.1609/AAAI.V38I16.29728
 
-## 9. Proposed Technology Stack
+### Initial Dataset Selection
+
+- Language: English.
+- Candidate file: en_refine.json.
+- Initial target: 50 evaluation questions.
+- Selection: stratified across available relevant categories, subject to schema verification.
+
+The final subset size and category distribution will be recorded after inspecting the actual JSON files.
+
+### Dataset Integrity
+
+- Preserve original question IDs.
+- Preserve original answers and evidence.
+- Record dataset version and source.
+- Do not silently modify original benchmark labels.
+- Store derived data separately.
+- Do not publish the original RGB files in this repository.
+
+## 8. Experimental Methodology
+
+### 8.1 System Architecture
+
+1. Dataset loading.
+2. Document normalization.
+3. Chunking.
+4. Index construction.
+5. Retrieval.
+6. Noise generation.
+7. Context assembly.
+8. Answer generation.
+9. Evaluation.
+10. Experiment logging.
+
+### 8.2 Retrieval Baselines
+
+| Method | Implementation |
+|---|---|
+| BM25 | rank-bm25 |
+| Dense | Sentence Transformers + Qdrant |
+| Hybrid | BM25 + dense retrieval + Reciprocal Rank Fusion |
+
+Dense embedding model:
+
+sentence-transformers/all-MiniLM-L6-v2
+
+Top-K:
+
+5
+
+Hybrid fusion:
+
+Reciprocal Rank Fusion (RRF), with a fixed and documented fusion constant.
+
+### 8.3 Retrieval-Side Noise
+
+Retrieval-side noise is introduced before indexing or retrieval.
+
+Procedure:
+
+1. Build the clean document corpus.
+2. Add labeled irrelevant or contradictory documents.
+3. Index the contaminated corpus.
+4. Run the same evaluation questions.
+5. Retrieve the top five passages.
+6. Measure the actual noise proportion among retrieved passages.
+7. Evaluate retrieval and answer quality.
+
+The injected candidate-corpus proportion and the retrieved top-K noise proportion will be logged separately.
+
+### 8.4 Context-Side Noise
+
+Context-side noise is introduced after retrieval.
+
+Procedure:
+
+1. Retrieve evidence from the clean index.
+2. Preserve the original relevant evidence.
+3. Inject controlled irrelevant or contradictory passages.
+4. Assemble the context.
+5. Generate the answer.
+6. Evaluate correctness and faithfulness.
+
+### 8.5 Noise Conditions
+
+For a context containing five passage slots:
+
+| Condition | Noise slots |
+|---|---:|
+| Clean | 0 |
+| Low | 1 |
+| Medium | 2 |
+| High | 3 |
+
+For retrieval-side noise, the corpus contamination proportion is separately recorded.
+
+### 8.6 Noise Generation and Labeling
+
+Irrelevant passages:
+
+- Select semantically unrelated passages.
+- Avoid accidentally including supporting evidence.
+- Record their original source and relevance label.
+
+Contradictory passages:
+
+- Start with an identifiable factual claim.
+- Create a deliberately conflicting statement.
+- Preserve the original evidence.
+- Record the original claim, altered claim, source ID and contradiction label.
+- Manually verify each generated contradiction.
+
+Synthetic passages must never be presented as genuine benchmark documents.
+
+## 9. Experimental Controls
+
+| Parameter | Fixed setting |
+|---|---|
+| Initial questions | 50 |
+| Retrieval top-K | 5 |
+| Embedding model | all-MiniLM-L6-v2 |
+| Generation model | gemini-3.8-flash |
+| Temperature | 0 |
+| Context budget | Maximum 2,000 retrieved-context tokens |
+| Generation prompt | Version-controlled |
+| Retrieval configuration | Version-controlled |
+| Random seed | 42 |
+
+The generation model is selected as a fixed experimental dependency, not as a claim that it is the best model. Its exact API availability and account access must be verified before the first run.
+
+All runs will record the model identifier and date. Model changes require a separate experiment configuration.
+
+## 10. Evaluation Metrics
+
+### 10.1 Retrieval Metrics
+
+**Precision@K**
+
+Relevant retrieved passages divided by total retrieved passages.
+
+**Recall@K**
+
+Relevant retrieved passages divided by all known relevant passages.
+
+**nDCG@K**
+
+Measures ranking quality using graded relevance judgments and discounts lower-ranked results.
+
+Use K=5 for the primary comparison.
+
+### 10.2 Generation Metrics
+
+**Exact Match (EM)**
+
+Measures whether the normalized generated answer matches the reference answer.
+
+**Token-level F1**
+
+Measures token overlap between generated and reference answers.
+
+EM and F1 will be used only where the answer format makes them meaningful.
+
+**Unsupported-Claim Rate**
+
+Number of unsupported factual claims divided by total factual claims.
+
+**Faithfulness**
+
+Proportion of factual claims supported by the provided evidence.
+
+Abstentions and unanswerable questions will be evaluated separately from incorrect answers.
+
+### 10.3 Efficiency Metrics
+
+- Retrieval latency in milliseconds.
+- Generation latency in milliseconds.
+- Input tokens.
+- Output tokens.
+- Estimated API cost, if applicable.
+
+Report averages and variability across repeated runs where feasible.
+
+## 11. Manual Verification
+
+A manually reviewed sample of generated answers will be selected.
+
+Reviewers will assess:
+
+1. Answer correctness.
+2. Evidence support.
+3. Contradiction handling.
+4. Unsupported factual claims.
+5. Appropriate abstention.
+
+The review procedure and disagreements will be documented.
+
+Where only one reviewer is available, results will be explicitly described as single-reviewer evaluation.
+
+## 12. Technology Stack
 
 - Python
 - Sentence Transformers
-- BM25
+- rank-bm25
 - Qdrant
 - Pandas
 - Matplotlib
 - PyYAML
 - Pytest
-- LLM API for answer generation
+- Gemini API
 
-## 10. References
+## 13. Expected Contributions
 
-1. Chen et al. (2024), Benchmarking Large Language Models in Retrieval-Augmented Generation.
-   https://doi.org/10.1609/aaai.v38i16.29728
+1. Reproducible RAG evaluation framework.
+2. Controlled noise-generation methodology.
+3. BM25, dense and hybrid retrieval baselines.
+4. Retrieval-side versus context-side robustness comparison.
+5. Reliability and computational-cost analysis.
+6. Public implementation and research documentation.
 
-2. Yang et al. (2024), CRAG: Comprehensive RAG Benchmark.
+## 14. Limitations
+
+- Initial evaluation uses a limited English subset.
+- RGB's published passages do not necessarily constitute a complete source corpus.
+- Synthetic contradictions may not capture all real-world misinformation.
+- One generator model limits generalization across LLMs.
+- Automated faithfulness evaluation may be imperfect.
+- API-based results may vary despite fixed decoding settings.
+
+## 15. Research Integrity
+
+No experimental findings will be fabricated.
+
+All benchmark transformations will preserve traceability to the original samples.
+
+All reported metrics must be reproducible from saved configurations and logs.
+
+Dataset licensing and attribution must be respected.
+
+## 16. Research Timeline
+
+| Day | Work |
+|---|---|
+| Day 1 | Research design, dataset inspection, GitHub documentation |
+| Day 2 | BM25, dense and hybrid baselines |
+| Day 3 | Noise generation and experiments |
+| Day 4 | Evaluation, manual review and results |
+| Day 5 | Analysis, paper and portfolio documentation |
+
+## 17. References
+
+1. Chen, J., Lin, H., Han, X., & Sun, L. (2024). Benchmarking Large Language Models in Retrieval-Augmented Generation. AAAI 2024.
+   https://doi.org/10.1609/AAAI.V38I16.29728
+
+2. Yang, X. et al. (2024). CRAG: Comprehensive RAG Benchmark. NeurIPS 2024.
    https://arxiv.org/abs/2406.04744
 
-3. Cao et al. (2026), Evaluating the Retrieval Robustness of Large Language Models.
-   https://arxiv.org/abs/2505.21870
-
-## 11. Research Timeline
-
-| Day | Deliverable |
-|---|---|
-| Day 1 | Literature review, dataset and environment |
-| Day 2 | Implement sparse and dense retrieval |
-| Day 3 | Implement hybrid retrieval and noise injection |
-| Day 4 | Run experiments and collect metrics |
-| Day 5 | Analyze results, prepare visualizations and draft findings |
-
-## 12. Research Integrity
-
-No experimental results will be fabricated.
-
-All numerical findings, performance comparisons, and conclusions will be based on actual executed experiments.
-
-The final paper will distinguish measured results, hypotheses, limitations, and future work.
+3. Cao, S. et al. (2026). Evaluating the Retrieval Robustness of Large Language Models. COLM 2026.
+   https://proceedings.colm.cc/paper_files/paper/2026/hash/b9c2e8a0bbed5fcfaf62856a3a719ada-Abstract-Conference.html
