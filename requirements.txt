@@ -1,0 +1,9 @@
+sentence-transformers
+rank-bm25
+qdrant-client
+pandas
+matplotlib
+fastapi
+uvicorn
+pytest
+pyyaml
