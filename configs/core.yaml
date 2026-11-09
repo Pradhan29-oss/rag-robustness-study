@@ -1,0 +1,38 @@
+# Core experiment settings. See research/protocol.md for definitions.
+seed: 42
+
+data:
+  rgb_commit: 65ec39e40e7dc9abb50e9bf1b4f32be3f6f16615
+  file: data/raw_rgb/data/en_refine.json
+  n_questions: 300
+
+retrievers:
+  bm25: {k1: 1.5, b: 0.75, tokenizer: "\\w+", lowercase: true}
+  dense: {model: sentence-transformers/all-MiniLM-L6-v2, normalize: true}
+  hybrid: {method: rrf, rrf_k: 60, candidates_per_retriever: 100}
+
+generation:
+  top_k_context: 5
+  temperature: 0
+  max_new_tokens: 256
+  model: TBD            # open decision: freeze model name and version here
+
+experiment_a:
+  noise_levels: [0.0, 0.3333, 0.6667, 1.0]   # fraction of the irrelevant pool added to the corpus
+  contradiction: {passages_per_question: 2}
+  retrieve_k: 10
+
+experiment_b:
+  n_questions: 100
+  noise_rates: [0.0, 0.4, 0.8]
+  counterfactual_passages: [0, 2]
+  passage_num: 5
+
+metrics:
+  retrieval_k: [5, 10]
+  bootstrap_resamples: 10000
+  manual_validation_sample: 100
+
+latency:
+  warmup_queries: 20
+  repetitions: 3
