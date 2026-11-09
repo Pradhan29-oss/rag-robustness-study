@@ -1,4 +1,5 @@
 __pycache__/
+<<<<<<< HEAD
 *.pyc
 .venv/
 .env
@@ -6,3 +7,9 @@ __pycache__/
 data/*
 !data/.gitkeep
 !data/README.md
+=======
+.venv/
+.env
+data/*
+!data/.gitkeep
+>>>>>>> b93f5757bcd811332d7edb43092a15ca2c653dcd

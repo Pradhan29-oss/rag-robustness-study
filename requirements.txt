@@ -1,9 +1,18 @@
 sentence-transformers
 rank-bm25
 qdrant-client
+<<<<<<< HEAD
 numpy
 pandas
 matplotlib
 pyyaml
 tqdm
 pytest
+=======
+pandas
+matplotlib
+fastapi
+uvicorn
+pytest
+pyyaml
+>>>>>>> b93f5757bcd811332d7edb43092a15ca2c653dcd
